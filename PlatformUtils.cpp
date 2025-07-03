@@ -1,5 +1,10 @@
 #include "PlatformUtils.h"
 
+#ifdef LTC_PLATFORM_WINDOWS
+    #include <windows.h>
+    #include <lmcons.h>  // For UNLEN
+#endif
+
 #ifdef LTC_PLATFORM_LINUX
     #include <limits.h>
     #include <pwd.h>
@@ -39,7 +44,7 @@ std::string GetUserName() {
 #ifdef LTC_PLATFORM_WINDOWS
     char buffer[UNLEN + 1];
     DWORD size = UNLEN + 1;
-    if (GetUserNameA(buffer, &size)) {
+    if (::GetUserNameA(buffer, &size)) {
         return std::string(buffer);
     }
     return "User";
