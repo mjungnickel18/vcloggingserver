@@ -1,37 +1,29 @@
 #include "Log2ConsoleUdpClient.h"
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
+#include "SocketPlatform.h"
 #include <mutex>
-
-#pragma comment(lib, "ws2_32.lib")
+#include <cstring>
+#include <string>
 
 class Log2ConsoleUdpClient::Impl {
 public:
     Impl(const std::string& serverHost, int serverPort, bool useXmlFormat)
         : m_serverHost(serverHost)
         , m_serverPort(serverPort)
-        , m_socket(INVALID_SOCKET)
+        , m_socket(INVALID_SOCKET_VALUE_VALUE)
         , m_initialized(false)
         , m_useXmlFormat(useXmlFormat)
     {
-        WSADATA wsaData;
-        WSAStartup(MAKEWORD(2, 2), &wsaData);
+        SocketPlatform::Initialize();
     }
 
     ~Impl() {
         Cleanup();
-        WSACleanup();
+        SocketPlatform::Cleanup();
     }
 
     std::string m_serverHost;
     int m_serverPort;
-    SOCKET m_socket;
+    socket_t m_socket;
     bool m_initialized;
     bool m_useXmlFormat;
     
@@ -102,7 +94,7 @@ bool Log2ConsoleUdpClient::Impl::Initialize() {
 
     // Create UDP socket
     m_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (m_socket == INVALID_SOCKET) {
+    if (m_socket == INVALID_SOCKET_VALUE) {
         return false;
     }
 
@@ -117,8 +109,8 @@ bool Log2ConsoleUdpClient::Impl::Initialize() {
     std::string portStr = std::to_string(m_serverPort);
     int res = getaddrinfo(m_serverHost.c_str(), portStr.c_str(), &hints, &result);
     if (res != 0) {
-        closesocket(m_socket);
-        m_socket = INVALID_SOCKET;
+        closesocket_platform(m_socket);
+        m_socket = INVALID_SOCKET_VALUE;
         return false;
     }
 
@@ -133,14 +125,14 @@ bool Log2ConsoleUdpClient::Impl::Initialize() {
 void Log2ConsoleUdpClient::Impl::Cleanup() {
     m_initialized = false;
     
-    if (m_socket != INVALID_SOCKET) {
-        closesocket(m_socket);
-        m_socket = INVALID_SOCKET;
+    if (m_socket != INVALID_SOCKET_VALUE) {
+        closesocket_platform(m_socket);
+        m_socket = INVALID_SOCKET_VALUE;
     }
 }
 
 bool Log2ConsoleUdpClient::Impl::SendMessage(const std::string& message) {
-    if (!m_initialized || m_socket == INVALID_SOCKET) {
+    if (!m_initialized || m_socket == INVALID_SOCKET_VALUE) {
         return false;
     }
 
@@ -153,5 +145,5 @@ bool Log2ConsoleUdpClient::Impl::SendMessage(const std::string& message) {
                        (struct sockaddr*)&m_serverAddr, 
                        sizeof(m_serverAddr));
     
-    return result != SOCKET_ERROR;
+    return result != SOCKET_ERROR_VALUE;
 }

@@ -1,6 +1,6 @@
-# VC++ UDP Logging Library for Log2Console
+# Cross-Platform UDP Logging Library for Log2Console
 
-A C++ UDP client library for sending log messages to [Log2Console](https://github.com/Statyk7/log2console) using the log4j XML format. Compatible with Visual C++ 2019.
+A C++ UDP client library for sending log messages to [Log2Console](https://github.com/Statyk7/log2console) using the log4j XML format. Compatible with Windows (Visual C++ 2019) and Linux (GCC).
 
 ## Features
 
@@ -9,7 +9,8 @@ A C++ UDP client library for sending log messages to [Log2Console](https://githu
 - Optional plain text format for debugging
 - Thread-safe UDP message sending
 - Multiple log levels: L_TRACE, L_DEBUG, L_INFO, L_WARN, L_ERROR, L_FATAL
-- No external dependencies (uses Windows sockets)
+- Cross-platform: Windows (Winsock2) and Linux (BSD sockets)
+- No external dependencies
 - Fire-and-forget UDP messaging for high performance
 
 ## UDP Client Usage
@@ -36,7 +37,14 @@ client.Cleanup();
 
 ## Building
 
-Requires Visual C++ 2019 or later with C++14 support. The project uses Windows sockets (Winsock2) which is linked automatically via `#pragma comment(lib, "ws2_32.lib")`.
+### Windows
+- Requires Visual C++ 2019 or later with C++14 support
+- Winsock2 is linked automatically via `#pragma comment(lib, "ws2_32.lib")`
+
+### Linux
+- Requires GCC with C++14 support
+- Compile with: `g++ -std=c++14 -pthread *.cpp -o logger`
+- No additional libraries needed (uses standard BSD sockets)
 
 ### Design Features
 - **PIMPL idiom**: Minimal header dependencies for faster compilation
@@ -87,6 +95,8 @@ LTC_INFO("MyApp", "This message will be ignored");
 - `Log2ConsoleUdpClient.h/cpp` - UDP client implementation
 - `Logger.h/cpp` - Singleton logger with convenient macros
 - `LoggerWrapper.h` - Conditional logging wrapper (enable/disable via define)
+- `PlatformUtils.h/cpp` - Platform abstraction for thread ID, hostname, username
+- `SocketPlatform.h/cpp` - Platform abstraction for socket operations
 - `example.cpp` - Example demonstrating UDP client and singleton logger
 - `example_wrapper.cpp` - Example demonstrating conditional logging
 

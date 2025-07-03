@@ -1,9 +1,9 @@
 #include "Log2ConsoleCommon.h"
+#include "PlatformUtils.h"
 #include <sstream>
 #include <iomanip>
 #include <chrono>
 #include <ctime>
-#include <windows.h>
 
 std::string Log2ConsoleFormatter::FormatPlainText(LogLevel level, const std::string& category, const std::string& message) {
     auto now = std::chrono::system_clock::now();
@@ -35,10 +35,10 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
     ss << "timestamp=\"" << ms_since_epoch << "\" ";
     ss << "level=\"" << LogLevelToLog4jString(level) << "\" ";
-    ss << "thread=\"" << GetCurrentThreadId() << "\">";
+    ss << "thread=\"" << PlatformUtils::GetCurrentThreadId() << "\">";
     ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
     ss << "<log4j:properties>";
-    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
+    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml(PlatformUtils::GetHostName()) << "\"/>";
     ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
@@ -68,15 +68,15 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
     ss << "timestamp=\"" << ms_since_epoch << "\" ";
     ss << "level=\"" << LogLevelToLog4jString(level) << "\" ";
-    ss << "thread=\"" << GetCurrentThreadId() << "\">";
+    ss << "thread=\"" << PlatformUtils::GetCurrentThreadId() << "\">";
     ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
     ss << "<log4j:locationInfo class=\"" << EscapeXml(category) << "\" ";
     ss << "method=\"" << EscapeXml(function) << "\" ";
     ss << "file=\"" << EscapeXml(filename) << "\" ";
     ss << "line=\"" << line << "\"/>";
     ss << "<log4j:properties>";
-    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
-    ss << "<log4j:data name=\"log4net:UserName\" value=\"" << EscapeXml("User") << "\"/>";
+    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml(PlatformUtils::GetHostName()) << "\"/>";
+    ss << "<log4j:data name=\"log4net:UserName\" value=\"" << EscapeXml(PlatformUtils::GetUserName()) << "\"/>";
     ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
