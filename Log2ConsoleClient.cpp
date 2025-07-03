@@ -96,32 +96,38 @@ void Log2ConsoleClient::WorkerThread() {
 }
 
 bool Log2ConsoleClient::TryConnect() {
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (m_socket == INVALID_SOCKET) {
-        return false;
-    }
-
-    sockaddr_in serverAddr{};
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(m_serverPort);
+    // Use getaddrinfo for better compatibility and IPv6 support
+    struct addrinfo hints{};
+    struct addrinfo* result = nullptr;
     
-    // Convert host to IP
-    struct hostent* host = gethostbyname(m_serverHost.c_str());
-    if (host == nullptr) {
-        closesocket(m_socket);
-        m_socket = INVALID_SOCKET;
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    
+    std::string portStr = std::to_string(m_serverPort);
+    int res = getaddrinfo(m_serverHost.c_str(), portStr.c_str(), &hints, &result);
+    if (res != 0) {
         return false;
     }
     
-    memcpy(&serverAddr.sin_addr, host->h_addr_list[0], host->h_length);
-
-    if (connect(m_socket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
+    // Try to connect using the resolved address
+    for (struct addrinfo* ptr = result; ptr != nullptr; ptr = ptr->ai_next) {
+        m_socket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (m_socket == INVALID_SOCKET) {
+            continue;
+        }
+        
+        if (connect(m_socket, ptr->ai_addr, (int)ptr->ai_addrlen) != SOCKET_ERROR) {
+            freeaddrinfo(result);
+            return true;
+        }
+        
         closesocket(m_socket);
         m_socket = INVALID_SOCKET;
-        return false;
     }
-
-    return true;
+    
+    freeaddrinfo(result);
+    return false;
 }
 
 void Log2ConsoleClient::SendMessage(const std::string& message) {
