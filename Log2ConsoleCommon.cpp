@@ -1,5 +1,6 @@
 #include "Log2ConsoleCommon.h"
 #include <ctime>
+#include <windows.h>
 
 std::string Log2ConsoleFormatter::FormatPlainText(LogLevel level, const std::string& category, const std::string& message) {
     auto now = std::chrono::system_clock::now();

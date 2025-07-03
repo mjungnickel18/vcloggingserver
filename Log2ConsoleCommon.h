@@ -4,7 +4,6 @@
 #include <sstream>
 #include <chrono>
 #include <iomanip>
-#include <windows.h>
 
 enum class LogLevel {
     TRACE = 0,
