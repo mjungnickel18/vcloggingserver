@@ -1,59 +1,37 @@
-# VC++ Logging Library for Log2Console
+# VC++ UDP Logging Library for Log2Console
 
-A C++ library for sending and receiving log messages with [Log2Console](https://github.com/Statyk7/log2console) using the log4j XML format. Compatible with Visual C++ 2019.
+A C++ UDP client library for sending log messages to [Log2Console](https://github.com/Statyk7/log2console) using the log4j XML format. Compatible with Visual C++ 2019.
 
 ## Features
 
-- **Log2ConsoleServer**: TCP server that accepts connections from Log2Console
-- **Log2ConsoleClient**: TCP client that sends logs to Log2Console  
+- **Log2ConsoleUdpClient**: UDP client that sends logs to Log2Console  
 - Supports log4j XML format (required by Log2Console)
 - Optional plain text format for debugging
-- Thread-safe with automatic reconnection
+- Thread-safe UDP message sending
 - Multiple log levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
 - No external dependencies (uses Windows sockets)
+- Fire-and-forget UDP messaging for high performance
 
-## Server Usage
+## UDP Client Usage
 
 ```cpp
-#include "Log2ConsoleServer.h"
+#include "Log2ConsoleUdpClient.h"
 
-// Create server that Log2Console can connect to
-Log2ConsoleServer server(4445, true);
+// Create UDP client that sends to Log2Console
+Log2ConsoleUdpClient client("localhost", 4445, true);
 
-// Start the server
-if (!server.Start()) {
-    std::cerr << "Failed to start log server" << std::endl;
+// Initialize the UDP client
+if (!client.Initialize()) {
+    std::cerr << "Failed to initialize UDP client" << std::endl;
     return 1;
 }
 
-// Send log messages to connected Log2Console
-server.Log(LogLevel::INFO, "MyApp", "Application started");
-server.Log(LogLevel::L_ERROR, "Database", "Connection failed");
-
-// Stop the server
-server.Stop();
-```
-
-## Client Usage
-
-```cpp
-#include "Log2ConsoleClient.h"
-
-// Create client that connects to Log2Console
-Log2ConsoleClient client("localhost", 4445, true);
-
-// Connect to Log2Console
-if (!client.Connect()) {
-    std::cerr << "Failed to connect" << std::endl;
-    return 1;
-}
-
-// Send log messages
+// Send log messages (fire-and-forget)
 client.Log(LogLevel::INFO, "MyApp", "Application started");
 client.Log(LogLevel::L_ERROR, "Database", "Connection failed");
 
-// Disconnect
-client.Disconnect();
+// Cleanup
+client.Cleanup();
 ```
 
 ## Building
@@ -68,23 +46,19 @@ Requires Visual C++ 2019 or later with C++14 support. The project uses Windows s
 
 ## Log2Console Configuration
 
-### For Server Mode:
+### For UDP Client Mode:
 1. Open Log2Console
-2. Add a new TCP receiver
-3. Set the host to `localhost` (or your server IP)
+2. Add a new UDP receiver
+3. Set the host to `localhost` (or your client IP)
 4. Set the port to `4445` (or your configured port)
 5. Start the receiver
-
-### For Client Mode:
-1. Your application connects to Log2Console's TCP receiver
-2. Log2Console must be running first with TCP receiver active
+6. Your application will send UDP messages to Log2Console
 
 ## Files
 
 - `Log2ConsoleCommon.h/cpp` - Shared formatting and log level definitions
-- `Log2ConsoleServer.h/cpp` - TCP server implementation
-- `Log2ConsoleClient.h/cpp` - TCP client implementation  
-- `example.cpp` - Example demonstrating both server and client modes
+- `Log2ConsoleUdpClient.h/cpp` - UDP client implementation  
+- `example.cpp` - Example demonstrating UDP client usage
 
 ## Note on ERROR Enum
 
