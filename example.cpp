@@ -53,27 +53,27 @@ void RunSingletonLogger() {
     std::cout << "Singleton logger initialized! Sending test logs..." << std::endl;
     
     // Test simple logging macros (without file/function/line info)
-    SLOG_INFO("SingletonApp", "Singleton logger application started");
-    SLOG_DEBUG("Database", "Connecting to database...");
-    SLOG_WARN("Network", "High latency detected: 250ms");
-    SLOG_ERROR("FileSystem", "Configuration file not found");
-    SLOG_FATAL("Security", "Authentication failed");
-    SLOG_TRACE("Performance", "Method execution time: 42ms");
+    LTCS_INFO("SingletonApp", "Singleton logger application started");
+    LTCS_DEBUG("Database", "Connecting to database...");
+    LTCS_WARN("Network", "High latency detected: 250ms");
+    LTCS_ERROR("FileSystem", "Configuration file not found");
+    LTCS_FATAL("Security", "Authentication failed");
+    LTCS_TRACE("Performance", "Method execution time: 42ms");
     
     std::cout << "Testing enhanced logging with file/function/line info..." << std::endl;
     
     // Test enhanced logging macros (with file/function/line info)
-    LOG_INFO("SingletonApp", "Enhanced log with source location");
-    LOG_DEBUG("Database", "Debug message with location info");
-    LOG_WARN("Network", "Warning with source tracking");
-    LOG_ERROR("FileSystem", "Error with detailed location");
-    LOG_FATAL("Security", "Fatal error with source info");
-    LOG_TRACE("Performance", "Trace with location details");
+    LTC_INFO("SingletonApp", "Enhanced log with source location");
+    LTC_DEBUG("Database", "Debug message with location info");
+    LTC_WARN("Network", "Warning with source tracking");
+    LTC_ERROR("FileSystem", "Error with detailed location");
+    LTC_FATAL("Security", "Fatal error with source info");
+    LTC_TRACE("Performance", "Trace with location details");
     
     // Demonstrate burst logging
     std::cout << "Sending burst of singleton messages..." << std::endl;
     for (int i = 0; i < 5; i++) {
-        LOG_INFO("BurstTest", "Singleton burst message #" + std::to_string(i));
+        LTC_INFO("BurstTest", "Singleton burst message #" + std::to_string(i));
     }
     
     std::cout << "Press Enter to cleanup..." << std::endl;

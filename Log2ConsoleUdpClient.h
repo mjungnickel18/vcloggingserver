@@ -22,6 +22,8 @@ public:
     bool IsInitialized() const;
 
     void Log(LogLevel level, const std::string& category, const std::string& message);
+    void Log(LogLevel level, const std::string& category, const std::string& message, 
+             const char* file, const char* function, int line);
     void SetXmlFormat(bool useXml);
 
 private:

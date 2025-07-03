@@ -54,6 +54,51 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     return ss.str();
 }
 
+std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::string& category, const std::string& message,
+                                                  const char* file, const char* function, int line) {
+    // Get current time as milliseconds since epoch using Windows API
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    
+    // Convert FILETIME to milliseconds since epoch
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+    
+    // FILETIME is 100-nanosecond intervals since Jan 1, 1601
+    // Unix epoch is Jan 1, 1970, which is 11644473600 seconds later
+    const ULONGLONG EPOCH_DIFFERENCE = 11644473600ULL * 10000000ULL;
+    ULONGLONG ms_since_epoch = (uli.QuadPart - EPOCH_DIFFERENCE) / 10000ULL;
+    
+    // Extract just the filename from the full path
+    const char* filename = file;
+    const char* lastSlash = file;
+    while (*lastSlash) {
+        if (*lastSlash == '\\' || *lastSlash == '/') {
+            filename = lastSlash + 1;
+        }
+        lastSlash++;
+    }
+    
+    std::stringstream ss;
+    ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
+    ss << "timestamp=\"" << ms_since_epoch << "\" ";
+    ss << "level=\"" << LogLevelToLog4jString(level) << "\" ";
+    ss << "thread=\"" << GetCurrentThreadId() << "\">";
+    ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
+    ss << "<log4j:locationInfo class=\"" << EscapeXml(category) << "\" ";
+    ss << "method=\"" << EscapeXml(function) << "\" ";
+    ss << "file=\"" << EscapeXml(filename) << "\" ";
+    ss << "line=\"" << line << "\"/>";
+    ss << "<log4j:properties>";
+    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
+    ss << "<log4j:data name=\"log4net:UserName\" value=\"" << EscapeXml("User") << "\"/>";
+    ss << "</log4j:properties>";
+    ss << "</log4j:event>\0";
+    
+    return ss.str();
+}
+
 const char* Log2ConsoleFormatter::LogLevelToString(LogLevel level) {
     switch (level) {
         case LogLevel::L_TRACE: return "TRACE";

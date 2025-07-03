@@ -58,21 +58,8 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
         return;
     }
 
-    // Extract just the filename from the full path
-    const char* filename = file;
-    const char* lastSlash = file;
-    while (*lastSlash) {
-        if (*lastSlash == '\\' || *lastSlash == '/') {
-            filename = lastSlash + 1;
-        }
-        lastSlash++;
-    }
-
-    // Create enhanced message with file/function/line info
-    std::ostringstream oss;
-    oss << message << " [" << filename << ":" << function << ":" << line << "]";
-
-    m_client->Log(level, category, oss.str());
+    // Use the overloaded UDP client method that handles file/function/line info
+    m_client->Log(level, category, message, file, function, line);
 }
 
 void Logger::SetXmlFormat(bool useXml) {

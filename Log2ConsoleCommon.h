@@ -16,6 +16,8 @@ class Log2ConsoleFormatter {
 public:
     static std::string FormatPlainText(LogLevel level, const std::string& category, const std::string& message);
     static std::string FormatLog4jXml(LogLevel level, const std::string& category, const std::string& message);
+    static std::string FormatLog4jXml(LogLevel level, const std::string& category, const std::string& message, 
+                                      const char* file, const char* function, int line);
     
     static const char* LogLevelToString(LogLevel level);
     static const char* LogLevelToLog4jString(LogLevel level);

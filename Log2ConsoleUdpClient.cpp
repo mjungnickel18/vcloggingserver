@@ -77,6 +77,19 @@ void Log2ConsoleUdpClient::Log(LogLevel level, const std::string& category, cons
     m_pImpl->SendMessage(formattedMessage);
 }
 
+void Log2ConsoleUdpClient::Log(LogLevel level, const std::string& category, const std::string& message, 
+                               const char* file, const char* function, int line) {
+    if (!m_pImpl->m_initialized) {
+        return;
+    }
+
+    std::string formattedMessage = m_pImpl->m_useXmlFormat
+        ? Log2ConsoleFormatter::FormatLog4jXml(level, category, message, file, function, line)
+        : Log2ConsoleFormatter::FormatPlainText(level, category, message);
+
+    m_pImpl->SendMessage(formattedMessage);
+}
+
 void Log2ConsoleUdpClient::SetXmlFormat(bool useXml) {
     m_pImpl->m_useXmlFormat = useXml;
 }

@@ -39,39 +39,39 @@ private:
 };
 
 // Convenience macros for logging with automatic file/function/line info
-#define LOG_TRACE(category, message) \
+#define LTC_TRACE(category, message) \
     Logger::GetInstance().Log(LogLevel::L_TRACE, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-#define LOG_DEBUG(category, message) \
+#define LTC_DEBUG(category, message) \
     Logger::GetInstance().Log(LogLevel::L_DEBUG, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-#define LOG_INFO(category, message) \
+#define LTC_INFO(category, message) \
     Logger::GetInstance().Log(LogLevel::L_INFO, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-#define LOG_WARN(category, message) \
+#define LTC_WARN(category, message) \
     Logger::GetInstance().Log(LogLevel::L_WARN, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-#define LOG_ERROR(category, message) \
+#define LTC_ERROR(category, message) \
     Logger::GetInstance().Log(LogLevel::L_ERROR, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-#define LOG_FATAL(category, message) \
+#define LTC_FATAL(category, message) \
     Logger::GetInstance().Log(LogLevel::L_FATAL, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 // Simple macros without file/function/line info
-#define SLOG_TRACE(category, message) \
+#define LTCS_TRACE(category, message) \
     Logger::GetInstance().Log(LogLevel::L_TRACE, category, message)
 
-#define SLOG_DEBUG(category, message) \
+#define LTCS_DEBUG(category, message) \
     Logger::GetInstance().Log(LogLevel::L_DEBUG, category, message)
 
-#define SLOG_INFO(category, message) \
+#define LTCS_INFO(category, message) \
     Logger::GetInstance().Log(LogLevel::L_INFO, category, message)
 
-#define SLOG_WARN(category, message) \
+#define LTCS_WARN(category, message) \
     Logger::GetInstance().Log(LogLevel::L_WARN, category, message)
 
-#define SLOG_ERROR(category, message) \
+#define LTCS_ERROR(category, message) \
     Logger::GetInstance().Log(LogLevel::L_ERROR, category, message)
 
-#define SLOG_FATAL(category, message) \
+#define LTCS_FATAL(category, message) \
     Logger::GetInstance().Log(LogLevel::L_FATAL, category, message)
