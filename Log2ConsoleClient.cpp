@@ -225,6 +225,10 @@ bool Log2ConsoleClient::Impl::TryConnect() {
         }
         
         if (connect(m_socket, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen)) != SOCKET_ERROR) {
+            // Disable Nagle's algorithm to ensure immediate transmission
+            int flag = 1;
+            setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int));
+            
             freeaddrinfo(result);
             return true;
         }
@@ -262,6 +266,9 @@ bool Log2ConsoleClient::Impl::SendMessage(const std::string& message) {
         }
         totalSent += sent;
     }
+    
+    // The socket is already configured with TCP_NODELAY in TryConnect()
+    // so messages are sent immediately without buffering
     
     return true;
 }
