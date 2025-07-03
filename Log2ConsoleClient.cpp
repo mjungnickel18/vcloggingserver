@@ -33,6 +33,7 @@ public:
         , m_useXmlFormat(useXmlFormat)
         , m_autoReconnect(true)
         , m_reconnectDelay(5)
+        , m_connectionAttempted(false)
     {
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -56,6 +57,10 @@ public:
     std::mutex m_queueMutex;
     std::condition_variable m_queueCv;
     std::queue<LogEntry> m_logQueue;
+    
+    std::mutex m_connectionMutex;
+    std::condition_variable m_connectionCv;
+    std::atomic<bool> m_connectionAttempted;
 
     void WorkerThread();
     bool TryConnect();
@@ -117,12 +122,15 @@ bool Log2ConsoleClient::Impl::Connect() {
     }
 
     if (!m_running) {
+        m_connectionAttempted = false;
         m_running = true;
         m_workerThread = std::thread(&Impl::WorkerThread, this);
     }
 
-    // Wait a bit for connection
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // Wait for the worker thread to make at least one connection attempt
+    std::unique_lock<std::mutex> lock(m_connectionMutex);
+    m_connectionCv.wait(lock, [this] { return m_connectionAttempted.load(); });
+    
     return m_connected;
 }
 
@@ -136,7 +144,9 @@ void Log2ConsoleClient::Impl::Disconnect() {
     }
     
     m_connected = false;
+    m_connectionAttempted = false;
     m_queueCv.notify_all();
+    m_connectionCv.notify_all();
     
     if (m_workerThread.joinable()) {
         m_workerThread.join();
@@ -146,7 +156,18 @@ void Log2ConsoleClient::Impl::Disconnect() {
 void Log2ConsoleClient::Impl::WorkerThread() {
     while (m_running) {
         if (!m_connected) {
-            if (TryConnect()) {
+            bool connectionResult = TryConnect();
+            
+            // Signal that a connection attempt has been made
+            if (!m_connectionAttempted.load()) {
+                {
+                    std::lock_guard<std::mutex> lock(m_connectionMutex);
+                    m_connectionAttempted = true;
+                }
+                m_connectionCv.notify_one();
+            }
+            
+            if (connectionResult) {
                 m_connected = true;
             } else if (m_autoReconnect) {
                 std::this_thread::sleep_for(std::chrono::seconds(m_reconnectDelay));
