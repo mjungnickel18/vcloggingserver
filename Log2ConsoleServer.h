@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Log2ConsoleCommon.h"
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
@@ -11,15 +12,6 @@
 #include <functional>
 
 #pragma comment(lib, "ws2_32.lib")
-
-enum class LogLevel {
-    TRACE = 0,
-    DEBUG = 1,
-    INFO = 2,
-    WARN = 3,
-    ERROR = 4,
-    FATAL = 5
-};
 
 class Log2ConsoleServer {
 public:
@@ -37,11 +29,6 @@ public:
 private:
     void AcceptThread();
     void SendLog2ConsoleMessage(LogLevel level, const std::string& category, const std::string& message);
-    std::string FormatLog2ConsoleMessage(LogLevel level, const std::string& category, const std::string& message);
-    std::string FormatLog4jXmlMessage(LogLevel level, const std::string& category, const std::string& message);
-    const char* LogLevelToString(LogLevel level);
-    const char* LogLevelToLog4jString(LogLevel level);
-    std::string EscapeXml(const std::string& text);
 
     int m_port;
     SOCKET m_serverSocket;

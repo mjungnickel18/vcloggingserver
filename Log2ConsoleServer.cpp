@@ -1,8 +1,4 @@
 #include "Log2ConsoleServer.h"
-#include <sstream>
-#include <iomanip>
-#include <chrono>
-#include <ctime>
 
 Log2ConsoleServer::Log2ConsoleServer(int port, bool useXmlFormat)
     : m_port(port)
@@ -109,8 +105,8 @@ void Log2ConsoleServer::SendLog2ConsoleMessage(LogLevel level, const std::string
     }
 
     std::string formattedMessage = m_useXmlFormat 
-        ? FormatLog4jXmlMessage(level, category, message)
-        : FormatLog2ConsoleMessage(level, category, message);
+        ? Log2ConsoleFormatter::FormatLog4jXml(level, category, message)
+        : Log2ConsoleFormatter::FormatPlainText(level, category, message);
     
     int totalSent = 0;
     int messageLen = static_cast<int>(formattedMessage.length());
@@ -129,81 +125,3 @@ void Log2ConsoleServer::SendLog2ConsoleMessage(LogLevel level, const std::string
     }
 }
 
-std::string Log2ConsoleServer::FormatLog2ConsoleMessage(LogLevel level, const std::string& category, const std::string& message) {
-    auto now = std::chrono::system_clock::now();
-    auto time_t_now = std::chrono::system_clock::to_time_t(now);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-    
-    std::tm tm{};
-    localtime_s(&tm, &time_t_now);
-    
-    std::stringstream ss;
-    ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
-    ss << "." << std::setfill('0') << std::setw(3) << ms.count();
-    ss << " [" << LogLevelToString(level) << "] ";
-    ss << "[" << category << "] ";
-    ss << message;
-    ss << "\r\n";
-    
-    return ss.str();
-}
-
-const char* Log2ConsoleServer::LogLevelToString(LogLevel level) {
-    switch (level) {
-        case LogLevel::TRACE: return "TRACE";
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO:  return "INFO";
-        case LogLevel::WARN:  return "WARN";
-        case LogLevel::ERROR: return "ERROR";
-        case LogLevel::FATAL: return "FATAL";
-        default: return "UNKNOWN";
-    }
-}
-
-const char* Log2ConsoleServer::LogLevelToLog4jString(LogLevel level) {
-    switch (level) {
-        case LogLevel::TRACE: return "TRACE";
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO:  return "INFO";
-        case LogLevel::WARN:  return "WARN";
-        case LogLevel::ERROR: return "ERROR";
-        case LogLevel::FATAL: return "FATAL";
-        default: return "INFO";
-    }
-}
-
-std::string Log2ConsoleServer::EscapeXml(const std::string& text) {
-    std::string result;
-    result.reserve(text.size());
-    
-    for (char c : text) {
-        switch (c) {
-            case '&':  result += "&amp;"; break;
-            case '<':  result += "&lt;"; break;
-            case '>':  result += "&gt;"; break;
-            case '"':  result += "&quot;"; break;
-            case '\'': result += "&apos;"; break;
-            default:   result += c; break;
-        }
-    }
-    
-    return result;
-}
-
-std::string Log2ConsoleServer::FormatLog4jXmlMessage(LogLevel level, const std::string& category, const std::string& message) {
-    auto now = std::chrono::system_clock::now();
-    auto ms_since_epoch = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-    
-    std::stringstream ss;
-    ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
-    ss << "timestamp=\"" << ms_since_epoch << "\" ";
-    ss << "level=\"" << LogLevelToLog4jString(level) << "\" ";
-    ss << "thread=\"" << GetCurrentThreadId() << "\">\r\n";
-    ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>\r\n";
-    ss << "<log4j:properties>\r\n";
-    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>\r\n";
-    ss << "</log4j:properties>\r\n";
-    ss << "</log4j:event>\r\n";
-    
-    return ss.str();
-}
