@@ -1,7 +1,5 @@
 #include "Log2ConsoleUdpClient.h"
 #include <iostream>
-#include <thread>
-#include <chrono>
 
 
 void RunUdpClient() {
