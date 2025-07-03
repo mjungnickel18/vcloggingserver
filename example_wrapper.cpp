@@ -37,8 +37,8 @@ void TestLogging() {
     LTCS_INFO("TestApp", "Simple log message");
     LTCS_WARN("TestApp", "Simple warning message");
     
-    // Direct Logger usage
-    Logger::GetInstance().Log(LogLevel::L_INFO, "DirectCall", "Direct logger call");
+    // Direct Logger usage (commented out - use wrapper macros instead)
+    // Logger::GetInstance().Log(LogLevel::L_INFO, "DirectCall", "Direct logger call");
     
     std::cout << "All logging calls completed" << std::endl;
     

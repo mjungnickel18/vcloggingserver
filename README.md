@@ -37,20 +37,76 @@ client.Cleanup();
 
 ## Building
 
-### Windows
-- Requires Visual C++ 2019 or later with C++14 support
-- Winsock2 is linked automatically via `#pragma comment(lib, "ws2_32.lib")`
+### Using CMake (Recommended)
 
-### Linux
+#### Windows
+```bash
+# Using build script
+build.bat              # Build static library
+build.bat --shared     # Build shared library (DLL)
+build.bat --debug      # Build in debug mode
+build.bat --vs2022     # Use Visual Studio 2022
+
+# Or manually
+mkdir build && cd build
+cmake .. -G "Visual Studio 16 2019"
+cmake --build . --config Release
+```
+
+#### Linux
+```bash
+# Using build script
+./build.sh             # Build static library
+./build.sh --shared    # Build shared library (.so)
+./build.sh --debug     # Build in debug mode
+
+# Or manually
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+```
+
+### Manual Build (without CMake)
+
+#### Windows
+- Requires Visual C++ 2019 or later with C++14 support
+- Compile all .cpp files into a library or directly into your project
+
+#### Linux
 - Requires GCC with C++14 support
 - Compile with: `g++ -std=c++14 -pthread *.cpp -o logger`
-- No additional libraries needed (uses standard BSD sockets)
 
 ### Design Features
 - **PIMPL idiom**: Minimal header dependencies for faster compilation
 - **C++14 compliant**: Uses modern C++ features while maintaining compatibility
 - **Move semantics**: Efficient resource management
 - **Thread-safe**: Proper synchronization for multi-threaded environments
+
+## Using in Your CMake Project
+
+After installing the library, you can use it in your CMake project:
+
+```cmake
+find_package(log2console REQUIRED)
+
+add_executable(myapp main.cpp)
+target_link_libraries(myapp PRIVATE log2console::log2console)
+
+# Optional: Enable logging (or control via compiler flags)
+target_compile_definitions(myapp PRIVATE ENABLE_LTC_LOGGING)
+```
+
+In your code:
+```cpp
+#include <log2console/LoggerWrapper.h>
+
+int main() {
+    Logger::GetInstance().Initialize("localhost", 4445, true);
+    LTC_INFO("MyApp", "Hello from Log2Console!");
+    Logger::GetInstance().Cleanup();
+    return 0;
+}
+```
 
 ## Log2Console Configuration
 

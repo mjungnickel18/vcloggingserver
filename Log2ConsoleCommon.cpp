@@ -11,7 +11,11 @@ std::string Log2ConsoleFormatter::FormatPlainText(LogLevel level, const std::str
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
     
     std::tm tm{};
+#ifdef WIN32
     localtime_s(&tm, &time_t_now);
+#else
+    localtime_r(&time_t_now, &tm);
+#endif
     
     std::stringstream ss;
     ss << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");

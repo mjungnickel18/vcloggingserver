@@ -9,7 +9,7 @@ public:
     Impl(const std::string& serverHost, int serverPort, bool useXmlFormat)
         : m_serverHost(serverHost)
         , m_serverPort(serverPort)
-        , m_socket(INVALID_SOCKET_VALUE_VALUE)
+        , m_socket(INVALID_SOCKET_VALUE)
         , m_initialized(false)
         , m_useXmlFormat(useXmlFormat)
     {
