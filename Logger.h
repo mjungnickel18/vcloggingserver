@@ -34,7 +34,7 @@ private:
     Logger& operator=(Logger&&) = delete;
 
     std::unique_ptr<Log2ConsoleUdpClient> m_client;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
     bool m_initialized = false;
 };
 
