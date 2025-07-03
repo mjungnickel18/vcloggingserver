@@ -40,6 +40,9 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     const ULONGLONG EPOCH_DIFFERENCE = 11644473600ULL * 10000000ULL;
     ULONGLONG ms_since_epoch = (uli.QuadPart - EPOCH_DIFFERENCE) / 10000ULL;
     
+    // Get sequence number for this log message
+    unsigned long sequenceNumber = GetNextSequenceNumber();
+    
     std::stringstream ss;
     ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
     ss << "timestamp=\"" << ms_since_epoch << "\" ";
@@ -48,6 +51,7 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
     ss << "<log4j:properties>";
     ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
+    ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
     
@@ -69,6 +73,9 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     // Unix epoch is Jan 1, 1970, which is 11644473600 seconds later
     const ULONGLONG EPOCH_DIFFERENCE = 11644473600ULL * 10000000ULL;
     ULONGLONG ms_since_epoch = (uli.QuadPart - EPOCH_DIFFERENCE) / 10000ULL;
+    
+    // Get sequence number for this log message
+    unsigned long sequenceNumber = GetNextSequenceNumber();
     
     // Extract just the filename from the full path
     const char* filename = file;
@@ -93,6 +100,7 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:properties>";
     ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
     ss << "<log4j:data name=\"log4net:UserName\" value=\"" << EscapeXml("User") << "\"/>";
+    ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
     
@@ -139,4 +147,9 @@ std::string Log2ConsoleFormatter::EscapeXml(const std::string& text) {
     }
     
     return result;
+}
+
+unsigned long Log2ConsoleFormatter::GetNextSequenceNumber() {
+    static unsigned long sequenceCounter = 0;
+    return ++sequenceCounter;
 }

@@ -24,4 +24,5 @@ public:
     
 private:
     static std::string EscapeXml(const std::string& text);
+    static unsigned long GetNextSequenceNumber();
 };
