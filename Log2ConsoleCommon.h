@@ -4,12 +4,12 @@
 #include <memory>
 
 enum class LogLevel {
-    TRACE = 0,
-    DEBUG = 1,
-    INFO = 2,
-    WARN = 3,
-    L_ERROR = 4,  // Renamed to avoid conflict with Windows ERROR macro
-    FATAL = 5
+    L_TRACE = 0,
+    L_DEBUG = 1,
+    L_INFO = 2,
+    L_WARN = 3,
+    L_ERROR = 4,
+    L_FATAL = 5
 };
 
 class Log2ConsoleFormatter {

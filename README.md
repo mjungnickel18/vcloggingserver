@@ -8,7 +8,7 @@ A C++ UDP client library for sending log messages to [Log2Console](https://githu
 - Supports log4j XML format (required by Log2Console)
 - Optional plain text format for debugging
 - Thread-safe UDP message sending
-- Multiple log levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL
+- Multiple log levels: L_TRACE, L_DEBUG, L_INFO, L_WARN, L_ERROR, L_FATAL
 - No external dependencies (uses Windows sockets)
 - Fire-and-forget UDP messaging for high performance
 
@@ -27,7 +27,7 @@ if (!client.Initialize()) {
 }
 
 // Send log messages (fire-and-forget)
-client.Log(LogLevel::INFO, "MyApp", "Application started");
+client.Log(LogLevel::L_INFO, "MyApp", "Application started");
 client.Log(LogLevel::L_ERROR, "Database", "Connection failed");
 
 // Cleanup
@@ -60,6 +60,6 @@ Requires Visual C++ 2019 or later with C++14 support. The project uses Windows s
 - `Log2ConsoleUdpClient.h/cpp` - UDP client implementation  
 - `example.cpp` - Example demonstrating UDP client usage
 
-## Note on ERROR Enum
+## Note on Log Level Enum
 
-The ERROR log level has been renamed to `L_ERROR` in the enum to avoid conflicts with Windows macros. The string representation remains "ERROR" for compatibility with Log2Console.
+All log levels have been prefixed with `L_` (L_TRACE, L_DEBUG, L_INFO, L_WARN, L_ERROR, L_FATAL) to avoid conflicts with Windows macros and other common definitions. The string representations remain standard (TRACE, DEBUG, INFO, etc.) for compatibility with Log2Console.

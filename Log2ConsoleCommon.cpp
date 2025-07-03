@@ -56,24 +56,24 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
 
 const char* Log2ConsoleFormatter::LogLevelToString(LogLevel level) {
     switch (level) {
-        case LogLevel::TRACE: return "TRACE";
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO:  return "INFO";
-        case LogLevel::WARN:  return "WARN";
+        case LogLevel::L_TRACE: return "TRACE";
+        case LogLevel::L_DEBUG: return "DEBUG";
+        case LogLevel::L_INFO:  return "INFO";
+        case LogLevel::L_WARN:  return "WARN";
         case LogLevel::L_ERROR: return "ERROR";
-        case LogLevel::FATAL: return "FATAL";
+        case LogLevel::L_FATAL: return "FATAL";
         default: return "UNKNOWN";
     }
 }
 
 const char* Log2ConsoleFormatter::LogLevelToLog4jString(LogLevel level) {
     switch (level) {
-        case LogLevel::TRACE: return "TRACE";
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO:  return "INFO";
-        case LogLevel::WARN:  return "WARN";
+        case LogLevel::L_TRACE: return "TRACE";
+        case LogLevel::L_DEBUG: return "DEBUG";
+        case LogLevel::L_INFO:  return "INFO";
+        case LogLevel::L_WARN:  return "WARN";
         case LogLevel::L_ERROR: return "ERROR";
-        case LogLevel::FATAL: return "FATAL";
+        case LogLevel::L_FATAL: return "FATAL";
         default: return "INFO";
     }
 }
