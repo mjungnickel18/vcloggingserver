@@ -32,12 +32,12 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:event logger=\"" << EscapeXml(category) << "\" ";
     ss << "timestamp=\"" << ms_since_epoch << "\" ";
     ss << "level=\"" << LogLevelToLog4jString(level) << "\" ";
-    ss << "thread=\"" << GetCurrentThreadId() << "\">\r\n";
-    ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>\r\n";
-    ss << "<log4j:properties>\r\n";
-    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>\r\n";
-    ss << "</log4j:properties>\r\n";
-    ss << "</log4j:event>\r\n";
+    ss << "thread=\"" << GetCurrentThreadId() << "\">";
+    ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
+    ss << "<log4j:properties>";
+    ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml("localhost") << "\"/>";
+    ss << "</log4j:properties>";
+    ss << "</log4j:event>\0";
     
     return ss.str();
 }
