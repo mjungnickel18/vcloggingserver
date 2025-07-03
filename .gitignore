@@ -1,0 +1,37 @@
+# Build directories
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+.vs/
+*.vcxproj.user
+*.vcxproj.filters
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+*.exe
+*.dll
+*.lib
+*.obj
+*.pch
+*.pdb
+*.ilk
+*.idb
+*.tlog
+*.log
+*.lastbuildstate
+
+# Visual Studio Code
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini
