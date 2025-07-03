@@ -54,11 +54,41 @@ Requires Visual C++ 2019 or later with C++14 support. The project uses Windows s
 5. Start the receiver
 6. Your application will send UDP messages to Log2Console
 
+## Conditional Logging
+
+The library includes `LoggerWrapper.h` for conditional compilation of logging functionality:
+
+```cpp
+// Enable logging
+#define ENABLE_LTC_LOGGING
+#include "LoggerWrapper.h"
+
+// Use logging macros - will send to Log2Console
+LTC_INFO("MyApp", "This message will be logged");
+```
+
+```cpp
+// Disable logging (don't define ENABLE_LTC_LOGGING)
+#include "LoggerWrapper.h"
+
+// Use same logging macros - will be compiled out (no-ops)
+LTC_INFO("MyApp", "This message will be ignored");
+```
+
+**Benefits:**
+- Zero runtime overhead when logging is disabled
+- Same code works with logging enabled/disabled
+- Easy to toggle logging for release builds
+- No need to remove log statements from code
+
 ## Files
 
 - `Log2ConsoleCommon.h/cpp` - Shared formatting and log level definitions
-- `Log2ConsoleUdpClient.h/cpp` - UDP client implementation  
-- `example.cpp` - Example demonstrating UDP client usage
+- `Log2ConsoleUdpClient.h/cpp` - UDP client implementation
+- `Logger.h/cpp` - Singleton logger with convenient macros
+- `LoggerWrapper.h` - Conditional logging wrapper (enable/disable via define)
+- `example.cpp` - Example demonstrating UDP client and singleton logger
+- `example_wrapper.cpp` - Example demonstrating conditional logging
 
 ## Note on Log Level Enum
 
