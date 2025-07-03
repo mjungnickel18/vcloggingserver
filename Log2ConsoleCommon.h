@@ -1,9 +1,7 @@
 #pragma once
 
 #include <string>
-#include <sstream>
-#include <chrono>
-#include <iomanip>
+#include <memory>
 
 enum class LogLevel {
     TRACE = 0,

@@ -1,59 +1,32 @@
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
-
 #include "Log2ConsoleCommon.h"
 #include <string>
-#include <mutex>
-#include <queue>
-#include <thread>
-#include <atomic>
-#include <condition_variable>
-
-#pragma comment(lib, "ws2_32.lib")
+#include <memory>
 
 class Log2ConsoleClient {
 public:
     Log2ConsoleClient(const std::string& serverHost = "localhost", int serverPort = 4445, bool useXmlFormat = true);
     ~Log2ConsoleClient();
 
+    // Delete copy constructor and copy assignment
+    Log2ConsoleClient(const Log2ConsoleClient&) = delete;
+    Log2ConsoleClient& operator=(const Log2ConsoleClient&) = delete;
+
+    // Move constructor and move assignment
+    Log2ConsoleClient(Log2ConsoleClient&&) noexcept;
+    Log2ConsoleClient& operator=(Log2ConsoleClient&&) noexcept;
+
     bool Connect();
     void Disconnect();
-    bool IsConnected() const { return m_connected; }
+    bool IsConnected() const;
 
     void Log(LogLevel level, const std::string& category, const std::string& message);
-    void SetXmlFormat(bool useXml) { m_useXmlFormat = useXml; }
-    void SetAutoReconnect(bool autoReconnect) { m_autoReconnect = autoReconnect; }
-    void SetReconnectDelay(int seconds) { m_reconnectDelay = seconds; }
+    void SetXmlFormat(bool useXml);
+    void SetAutoReconnect(bool autoReconnect);
+    void SetReconnectDelay(int seconds);
 
 private:
-    void WorkerThread();
-    bool TryConnect();
-    void SendMessage(const std::string& message);
-    
-    struct LogEntry {
-        LogLevel level;
-        std::string category;
-        std::string message;
-    };
-
-    std::string m_serverHost;
-    int m_serverPort;
-    SOCKET m_socket;
-    std::atomic<bool> m_connected;
-    std::atomic<bool> m_running;
-    bool m_useXmlFormat;
-    bool m_autoReconnect;
-    int m_reconnectDelay;
-    
-    std::thread m_workerThread;
-    std::mutex m_queueMutex;
-    std::condition_variable m_queueCv;
-    std::queue<LogEntry> m_logQueue;
+    class Impl;
+    std::unique_ptr<Impl> m_pImpl;
 };

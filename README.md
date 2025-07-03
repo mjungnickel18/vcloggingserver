@@ -58,7 +58,13 @@ client.Disconnect();
 
 ## Building
 
-Requires Visual C++ 2019 or later. The project uses Windows sockets (Winsock2) which is linked automatically via `#pragma comment(lib, "ws2_32.lib")`.
+Requires Visual C++ 2019 or later with C++14 support. The project uses Windows sockets (Winsock2) which is linked automatically via `#pragma comment(lib, "ws2_32.lib")`.
+
+### Design Features
+- **PIMPL idiom**: Minimal header dependencies for faster compilation
+- **C++14 compliant**: Uses modern C++ features while maintaining compatibility
+- **Move semantics**: Efficient resource management
+- **Thread-safe**: Proper synchronization for multi-threaded environments
 
 ## Log2Console Configuration
 

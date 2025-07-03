@@ -1,46 +1,32 @@
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
-
 #include "Log2ConsoleCommon.h"
 #include <string>
-#include <thread>
-#include <atomic>
-#include <vector>
-#include <mutex>
 #include <functional>
-
-#pragma comment(lib, "ws2_32.lib")
+#include <memory>
 
 class Log2ConsoleServer {
 public:
     Log2ConsoleServer(int port = 4445, bool useXmlFormat = true);
     ~Log2ConsoleServer();
 
+    // Delete copy constructor and copy assignment
+    Log2ConsoleServer(const Log2ConsoleServer&) = delete;
+    Log2ConsoleServer& operator=(const Log2ConsoleServer&) = delete;
+
+    // Move constructor and move assignment
+    Log2ConsoleServer(Log2ConsoleServer&&) noexcept;
+    Log2ConsoleServer& operator=(Log2ConsoleServer&&) noexcept;
+
     bool Start();
     void Stop();
-    bool IsRunning() const { return m_running; }
+    bool IsRunning() const;
 
     void Log(LogLevel level, const std::string& category, const std::string& message);
-    void SetClientConnectedCallback(std::function<void(bool)> callback) { m_clientConnectedCallback = callback; }
-    void SetXmlFormat(bool useXml) { m_useXmlFormat = useXml; }
+    void SetClientConnectedCallback(std::function<void(bool)> callback);
+    void SetXmlFormat(bool useXml);
 
 private:
-    void AcceptThread();
-    void SendLog2ConsoleMessage(LogLevel level, const std::string& category, const std::string& message);
-
-    int m_port;
-    SOCKET m_serverSocket;
-    SOCKET m_clientSocket;
-    std::atomic<bool> m_running;
-    std::thread m_acceptThread;
-    std::mutex m_socketMutex;
-    std::function<void(bool)> m_clientConnectedCallback;
-    bool m_useXmlFormat;
+    class Impl;
+    std::unique_ptr<Impl> m_pImpl;
 };

@@ -1,4 +1,7 @@
 #include "Log2ConsoleCommon.h"
+#include <sstream>
+#include <iomanip>
+#include <chrono>
 #include <ctime>
 #include <windows.h>
 

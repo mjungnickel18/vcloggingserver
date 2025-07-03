@@ -1,33 +1,124 @@
 #include "Log2ConsoleClient.h"
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
 #include <chrono>
 
+#pragma comment(lib, "ws2_32.lib")
+
+struct LogEntry {
+    LogLevel level;
+    std::string category;
+    std::string message;
+};
+
+class Log2ConsoleClient::Impl {
+public:
+    Impl(const std::string& serverHost, int serverPort, bool useXmlFormat)
+        : m_serverHost(serverHost)
+        , m_serverPort(serverPort)
+        , m_socket(INVALID_SOCKET)
+        , m_connected(false)
+        , m_running(false)
+        , m_useXmlFormat(useXmlFormat)
+        , m_autoReconnect(true)
+        , m_reconnectDelay(5)
+    {
+        WSADATA wsaData;
+        WSAStartup(MAKEWORD(2, 2), &wsaData);
+    }
+
+    ~Impl() {
+        Disconnect();
+        WSACleanup();
+    }
+
+    std::string m_serverHost;
+    int m_serverPort;
+    SOCKET m_socket;
+    std::atomic<bool> m_connected;
+    std::atomic<bool> m_running;
+    bool m_useXmlFormat;
+    bool m_autoReconnect;
+    int m_reconnectDelay;
+    
+    std::thread m_workerThread;
+    std::mutex m_queueMutex;
+    std::condition_variable m_queueCv;
+    std::queue<LogEntry> m_logQueue;
+
+    void WorkerThread();
+    bool TryConnect();
+    void SendMessage(const std::string& message);
+    bool Connect();
+    void Disconnect();
+};
+
 Log2ConsoleClient::Log2ConsoleClient(const std::string& serverHost, int serverPort, bool useXmlFormat)
-    : m_serverHost(serverHost)
-    , m_serverPort(serverPort)
-    , m_socket(INVALID_SOCKET)
-    , m_connected(false)
-    , m_running(false)
-    , m_useXmlFormat(useXmlFormat)
-    , m_autoReconnect(true)
-    , m_reconnectDelay(5)
+    : m_pImpl(std::make_unique<Impl>(serverHost, serverPort, useXmlFormat))
 {
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2, 2), &wsaData);
 }
 
-Log2ConsoleClient::~Log2ConsoleClient() {
-    Disconnect();
-    WSACleanup();
-}
+Log2ConsoleClient::~Log2ConsoleClient() = default;
+
+Log2ConsoleClient::Log2ConsoleClient(Log2ConsoleClient&&) noexcept = default;
+Log2ConsoleClient& Log2ConsoleClient::operator=(Log2ConsoleClient&&) noexcept = default;
 
 bool Log2ConsoleClient::Connect() {
+    return m_pImpl->Connect();
+}
+
+void Log2ConsoleClient::Disconnect() {
+    m_pImpl->Disconnect();
+}
+
+bool Log2ConsoleClient::IsConnected() const {
+    return m_pImpl->m_connected;
+}
+
+void Log2ConsoleClient::Log(LogLevel level, const std::string& category, const std::string& message) {
+    if (!m_pImpl->m_running) {
+        return;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(m_pImpl->m_queueMutex);
+        m_pImpl->m_logQueue.push({level, category, message});
+    }
+    m_pImpl->m_queueCv.notify_one();
+}
+
+void Log2ConsoleClient::SetXmlFormat(bool useXml) {
+    m_pImpl->m_useXmlFormat = useXml;
+}
+
+void Log2ConsoleClient::SetAutoReconnect(bool autoReconnect) {
+    m_pImpl->m_autoReconnect = autoReconnect;
+}
+
+void Log2ConsoleClient::SetReconnectDelay(int seconds) {
+    m_pImpl->m_reconnectDelay = seconds;
+}
+
+// Implementation methods
+bool Log2ConsoleClient::Impl::Connect() {
     if (m_connected) {
         return true;
     }
 
     if (!m_running) {
         m_running = true;
-        m_workerThread = std::thread(&Log2ConsoleClient::WorkerThread, this);
+        m_workerThread = std::thread(&Impl::WorkerThread, this);
     }
 
     // Wait a bit for connection
@@ -35,7 +126,7 @@ bool Log2ConsoleClient::Connect() {
     return m_connected;
 }
 
-void Log2ConsoleClient::Disconnect() {
+void Log2ConsoleClient::Impl::Disconnect() {
     m_running = false;
     m_autoReconnect = false;
     
@@ -52,19 +143,7 @@ void Log2ConsoleClient::Disconnect() {
     }
 }
 
-void Log2ConsoleClient::Log(LogLevel level, const std::string& category, const std::string& message) {
-    if (!m_running) {
-        return;
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(m_queueMutex);
-        m_logQueue.push({level, category, message});
-    }
-    m_queueCv.notify_one();
-}
-
-void Log2ConsoleClient::WorkerThread() {
+void Log2ConsoleClient::Impl::WorkerThread() {
     while (m_running) {
         if (!m_connected) {
             if (TryConnect()) {
@@ -95,7 +174,7 @@ void Log2ConsoleClient::WorkerThread() {
     }
 }
 
-bool Log2ConsoleClient::TryConnect() {
+bool Log2ConsoleClient::Impl::TryConnect() {
     // Use getaddrinfo for better compatibility and IPv6 support
     struct addrinfo hints{};
     struct addrinfo* result = nullptr;
@@ -117,7 +196,7 @@ bool Log2ConsoleClient::TryConnect() {
             continue;
         }
         
-        if (connect(m_socket, ptr->ai_addr, (int)ptr->ai_addrlen) != SOCKET_ERROR) {
+        if (connect(m_socket, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen)) != SOCKET_ERROR) {
             freeaddrinfo(result);
             return true;
         }
@@ -130,7 +209,7 @@ bool Log2ConsoleClient::TryConnect() {
     return false;
 }
 
-void Log2ConsoleClient::SendMessage(const std::string& message) {
+void Log2ConsoleClient::Impl::SendMessage(const std::string& message) {
     if (m_socket == INVALID_SOCKET || !m_connected) {
         return;
     }
