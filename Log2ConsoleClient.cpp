@@ -64,7 +64,7 @@ public:
 
     void WorkerThread();
     bool TryConnect();
-    void SendMessage(const std::string& message);
+    bool SendMessage(const std::string& message);
     bool Connect();
     void Disconnect();
 };
@@ -189,7 +189,14 @@ void Log2ConsoleClient::Impl::WorkerThread() {
                 ? Log2ConsoleFormatter::FormatLog4jXml(entry.level, entry.category, entry.message)
                 : Log2ConsoleFormatter::FormatPlainText(entry.level, entry.category, entry.message);
 
-            SendMessage(formattedMessage);
+            // Try to send the message
+            if (!SendMessage(formattedMessage)) {
+                // If send failed, put message back in queue for retry
+                lock.lock();
+                m_logQueue.push(entry);
+                break; // Exit the loop to trigger reconnection
+            }
+            
             lock.lock();
         }
     }
@@ -230,9 +237,9 @@ bool Log2ConsoleClient::Impl::TryConnect() {
     return false;
 }
 
-void Log2ConsoleClient::Impl::SendMessage(const std::string& message) {
+bool Log2ConsoleClient::Impl::SendMessage(const std::string& message) {
     if (m_socket == INVALID_SOCKET || !m_connected) {
-        return;
+        return false;
     }
 
     int totalSent = 0;
@@ -241,11 +248,20 @@ void Log2ConsoleClient::Impl::SendMessage(const std::string& message) {
     while (totalSent < messageLen) {
         int sent = send(m_socket, message.c_str() + totalSent, messageLen - totalSent, 0);
         if (sent == SOCKET_ERROR) {
+            int error = WSAGetLastError();
+            if (error == WSAEWOULDBLOCK) {
+                // Socket buffer is full, wait a bit and retry
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                continue;
+            }
+            // Other errors mean connection is lost
             closesocket(m_socket);
             m_socket = INVALID_SOCKET;
             m_connected = false;
-            break;
+            return false;
         }
         totalSent += sent;
     }
+    
+    return true;
 }
