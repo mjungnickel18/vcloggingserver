@@ -17,32 +17,32 @@ public:
     void Log(LogLevel level, const std::string& category, const std::string& message);
 
     // Extended log method with file, function, and line information
-    void Log(LogLevel level, const std::string& category, const std::string& message, 
-             const char* file, const char* function, int line);
+    void LogWithLocation(LogLevel level, const std::string& category, const std::string& message, 
+                        const char* file, const char* function, int line);
 
     // Printf-style log methods with one parameter
     template<typename T>
     void Log(LogLevel level, const std::string& category, const std::string& format, T value);
     
     template<typename T>
-    void Log(LogLevel level, const std::string& category, const std::string& format, T value,
-             const char* file, const char* function, int line);
+    void LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T value,
+                        const char* file, const char* function, int line);
 
     // Printf-style log methods with two parameters
     template<typename T1, typename T2>
     void Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2);
     
     template<typename T1, typename T2>
-    void Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
-             const char* file, const char* function, int line);
+    void LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
+                        const char* file, const char* function, int line);
 
     // Printf-style log methods with three parameters
     template<typename T1, typename T2, typename T3>
     void Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3);
     
     template<typename T1, typename T2, typename T3>
-    void Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
-             const char* file, const char* function, int line);
+    void LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
+                        const char* file, const char* function, int line);
 
     // Set XML format preference
     void SetXmlFormat(bool useXml);
@@ -64,22 +64,22 @@ private:
 
 // Convenience macros for logging with automatic file/function/line info
 #define LTC_TRACE(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_DEBUG(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_DEBUG, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_INFO(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_INFO, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_WARN(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_WARN, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_ERROR(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_ERROR, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_FATAL(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, message, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, message, __FILE__, __FUNCTION__, __LINE__)
 
 // Simple macros without file/function/line info
 #define LTCS_TRACE(category, message) \
@@ -102,22 +102,22 @@ private:
 
 // Printf-style macros with automatic file/function/line info
 #define LTC_TRACE_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_DEBUG_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_DEBUG, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_INFO_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_INFO, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_WARN_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_WARN, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_ERROR_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_ERROR, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_FATAL_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
 // Simple printf-style macros without file/function/line info
 #define LTCS_TRACE_F1(category, format, value) \
@@ -140,22 +140,22 @@ private:
 
 // Printf-style macros with two parameters (with file/function/line info)
 #define LTC_TRACE_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_DEBUG_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_DEBUG, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_INFO_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_INFO, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_WARN_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_WARN, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_ERROR_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_ERROR, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_FATAL_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
 // Simple printf-style macros with two parameters (without source location)
 #define LTCS_TRACE_F2(category, format, value1, value2) \
@@ -178,22 +178,22 @@ private:
 
 // Printf-style macros with three parameters (with file/function/line info)
 #define LTC_TRACE_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_DEBUG_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_DEBUG, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_INFO_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_INFO, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_WARN_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_WARN, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_ERROR_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_ERROR, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 #define LTC_FATAL_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+    Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 // Simple printf-style macros with three parameters (without source location)
 #define LTCS_TRACE_F3(category, format, value1, value2, value3) \
@@ -246,8 +246,8 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
 }
 
 template<typename T>
-void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T value,
-                 const char* file, const char* function, int line) {
+void Logger::LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T value,
+                            const char* file, const char* function, int line) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (!m_initialized || !m_client) {
@@ -311,8 +311,8 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
 }
 
 template<typename T1, typename T2>
-void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
-                 const char* file, const char* function, int line) {
+void Logger::LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
+                            const char* file, const char* function, int line) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (!m_initialized || !m_client) {
@@ -388,8 +388,8 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
 }
 
 template<typename T1, typename T2, typename T3>
-void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
-                 const char* file, const char* function, int line) {
+void Logger::LogWithLocation(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
+                            const char* file, const char* function, int line) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (!m_initialized || !m_client) {

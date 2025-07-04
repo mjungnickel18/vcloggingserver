@@ -50,8 +50,8 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
     m_client->Log(level, category, message);
 }
 
-void Logger::Log(LogLevel level, const std::string& category, const std::string& message, 
-                 const char* file, const char* function, int line) {
+void Logger::LogWithLocation(LogLevel level, const std::string& category, const std::string& message, 
+                             const char* file, const char* function, int line) {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (!m_initialized || !m_client) {
