@@ -6,9 +6,9 @@
 
 class Logger {
 public:
-    static Logger& GetInstance();
+    static Logger& GetInstance(); // Auto-initializes with default settings on first call
 
-    // Initialize the logger with server details
+    // Initialize or reconfigure the logger with server details
     bool Initialize(const std::string& serverHost = "localhost", int serverPort = 4445, bool useXmlFormat = true);
     void Cleanup();
     bool IsInitialized() const;

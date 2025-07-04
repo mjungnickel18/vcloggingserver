@@ -3,6 +3,12 @@
 
 Logger& Logger::GetInstance() {
     static Logger instance;
+    
+    // Auto-initialize with default settings if not already initialized
+    if (!instance.m_initialized) {
+        instance.Initialize();
+    }
+    
     return instance;
 }
 
