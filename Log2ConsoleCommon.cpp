@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <chrono>
 #include <ctime>
+#include <mutex>
 
 std::string Log2ConsoleFormatter::FormatPlainText(LogLevel level, const std::string& category, const std::string& message) {
     auto now = std::chrono::system_clock::now();
@@ -43,7 +44,7 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:message><![CDATA[" << message << "]]></log4j:message>";
     ss << "<log4j:properties>";
     ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml(PlatformUtils::GetHostName()) << "\"/>";
-    ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
+    ss << "<nlog:eventSequenceNumber>" << sequenceNumber << "</nlog:eventSequenceNumber>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
     
@@ -81,7 +82,7 @@ std::string Log2ConsoleFormatter::FormatLog4jXml(LogLevel level, const std::stri
     ss << "<log4j:properties>";
     ss << "<log4j:data name=\"log4net:HostName\" value=\"" << EscapeXml(PlatformUtils::GetHostName()) << "\"/>";
     ss << "<log4j:data name=\"log4net:UserName\" value=\"" << EscapeXml(PlatformUtils::GetUserName()) << "\"/>";
-    ss << "<log4j:data name=\"nlog:eventSequenceNumber\" value=\"" << sequenceNumber << "\"/>";
+    ss << "<nlog:eventSequenceNumber>" << sequenceNumber << "</nlog:eventSequenceNumber>";
     ss << "</log4j:properties>";
     ss << "</log4j:event>\0";
     
@@ -132,5 +133,7 @@ std::string Log2ConsoleFormatter::EscapeXml(const std::string& text) {
 
 unsigned long Log2ConsoleFormatter::GetNextSequenceNumber() {
     static unsigned long sequenceCounter = 0;
+    static std::mutex sequenceMutex;
+    std::lock_guard<std::mutex> lock(sequenceMutex);
     return ++sequenceCounter;
 }

@@ -29,6 +29,54 @@
 #define LTCS_ERROR(category, message) do { } while(0)
 #define LTCS_FATAL(category, message) do { } while(0)
 
+// Printf-style macros (with file/function/line info) - do nothing
+#define LTC_TRACE_F1(category, format, value) do { } while(0)
+#define LTC_DEBUG_F1(category, format, value) do { } while(0)
+#define LTC_INFO_F1(category, format, value) do { } while(0)
+#define LTC_WARN_F1(category, format, value) do { } while(0)
+#define LTC_ERROR_F1(category, format, value) do { } while(0)
+#define LTC_FATAL_F1(category, format, value) do { } while(0)
+
+// Simple printf-style macros (without source location) - do nothing
+#define LTCS_TRACE_F1(category, format, value) do { } while(0)
+#define LTCS_DEBUG_F1(category, format, value) do { } while(0)
+#define LTCS_INFO_F1(category, format, value) do { } while(0)
+#define LTCS_WARN_F1(category, format, value) do { } while(0)
+#define LTCS_ERROR_F1(category, format, value) do { } while(0)
+#define LTCS_FATAL_F1(category, format, value) do { } while(0)
+
+// Printf-style macros with two parameters (with file/function/line info) - do nothing
+#define LTC_TRACE_F2(category, format, value1, value2) do { } while(0)
+#define LTC_DEBUG_F2(category, format, value1, value2) do { } while(0)
+#define LTC_INFO_F2(category, format, value1, value2) do { } while(0)
+#define LTC_WARN_F2(category, format, value1, value2) do { } while(0)
+#define LTC_ERROR_F2(category, format, value1, value2) do { } while(0)
+#define LTC_FATAL_F2(category, format, value1, value2) do { } while(0)
+
+// Simple printf-style macros with two parameters (without source location) - do nothing
+#define LTCS_TRACE_F2(category, format, value1, value2) do { } while(0)
+#define LTCS_DEBUG_F2(category, format, value1, value2) do { } while(0)
+#define LTCS_INFO_F2(category, format, value1, value2) do { } while(0)
+#define LTCS_WARN_F2(category, format, value1, value2) do { } while(0)
+#define LTCS_ERROR_F2(category, format, value1, value2) do { } while(0)
+#define LTCS_FATAL_F2(category, format, value1, value2) do { } while(0)
+
+// Printf-style macros with three parameters (with file/function/line info) - do nothing
+#define LTC_TRACE_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTC_DEBUG_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTC_INFO_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTC_WARN_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTC_ERROR_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTC_FATAL_F3(category, format, value1, value2, value3) do { } while(0)
+
+// Simple printf-style macros with three parameters (without source location) - do nothing
+#define LTCS_TRACE_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTCS_DEBUG_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTCS_INFO_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTCS_WARN_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTCS_ERROR_F3(category, format, value1, value2, value3) do { } while(0)
+#define LTCS_FATAL_F3(category, format, value1, value2, value3) do { } while(0)
+
 // Mock Logger class for compatibility
 namespace LoggerMock {
     class Logger {
