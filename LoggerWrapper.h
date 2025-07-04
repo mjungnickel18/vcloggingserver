@@ -49,6 +49,42 @@
 #define LTC_FATAL_F3(category, format, value1, value2, value3) do { } while(0)
 
 
+// Token-based logging macros (no parameters) - do nothing
+#define LTC_TRACE_TOKEN(tokenId, category, message) do { } while(0)
+#define LTC_DEBUG_TOKEN(tokenId, category, message) do { } while(0)
+#define LTC_INFO_TOKEN(tokenId, category, message) do { } while(0)
+#define LTC_WARN_TOKEN(tokenId, category, message) do { } while(0)
+#define LTC_ERROR_TOKEN(tokenId, category, message) do { } while(0)
+#define LTC_FATAL_TOKEN(tokenId, category, message) do { } while(0)
+
+
+// Token-based logging macros with one parameter - do nothing
+#define LTC_TRACE_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+#define LTC_DEBUG_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+#define LTC_INFO_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+#define LTC_WARN_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+#define LTC_ERROR_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+#define LTC_FATAL_TOKEN_F1(tokenId, category, format, value) do { } while(0)
+
+
+// Token-based logging macros with two parameters - do nothing
+#define LTC_TRACE_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+#define LTC_DEBUG_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+#define LTC_INFO_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+#define LTC_WARN_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+#define LTC_ERROR_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+#define LTC_FATAL_TOKEN_F2(tokenId, category, format, value1, value2) do { } while(0)
+
+
+// Token-based logging macros with three parameters - do nothing
+#define LTC_TRACE_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+#define LTC_DEBUG_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+#define LTC_INFO_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+#define LTC_WARN_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+#define LTC_ERROR_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+#define LTC_FATAL_TOKEN_F3(tokenId, category, format, value1, value2, value3) do { } while(0)
+
+
 // Mock Logger class for compatibility
 namespace LoggerMock {
     class Logger {

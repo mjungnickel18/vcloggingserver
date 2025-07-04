@@ -196,6 +196,86 @@ private:
     Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
 
+// Token-based logging macros (no parameters)
+#define LTC_TRACE_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_TRACE, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_DEBUG_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_DEBUG, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_INFO_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_INFO, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_WARN_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_WARN, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_ERROR_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_ERROR, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_FATAL_TOKEN(tokenId, category, message) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_FATAL, category, message, __FILE__, __FUNCTION__, __LINE__)
+
+
+// Token-based logging macros with one parameter
+#define LTC_TRACE_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_TRACE, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_DEBUG_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_DEBUG, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_INFO_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_INFO, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_WARN_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_WARN, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_ERROR_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_ERROR, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_FATAL_TOKEN_F1(tokenId, category, format, value) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_FATAL, category, format, value, __FILE__, __FUNCTION__, __LINE__)
+
+
+// Token-based logging macros with two parameters
+#define LTC_TRACE_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_TRACE, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_DEBUG_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_DEBUG, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_INFO_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_INFO, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_WARN_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_WARN, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_ERROR_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_ERROR, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_FATAL_TOKEN_F2(tokenId, category, format, value1, value2) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_FATAL, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
+
+
+// Token-based logging macros with three parameters
+#define LTC_TRACE_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_TRACE, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_DEBUG_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_DEBUG, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_INFO_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_INFO, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_WARN_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_WARN, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_ERROR_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_ERROR, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+#define LTC_FATAL_TOKEN_F3(tokenId, category, format, value1, value2, value3) \
+    Logger::GetInstance().LogTokenWithLocation(tokenId, LogLevel::L_FATAL, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
+
+
 // Template implementations for fmt::format style logging
 #include <sstream>
 #include <iomanip>
