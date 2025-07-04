@@ -75,3 +75,48 @@ void Logger::SetXmlFormat(bool useXml) {
         m_client->SetXmlFormat(useXml);
     }
 }
+
+void Logger::LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& message) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    // Calculate hash of the message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message);
+}
+
+void Logger::LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& message,
+                                 const char* file, const char* function, int line) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    // Calculate hash of the message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message, file, function, line);
+}

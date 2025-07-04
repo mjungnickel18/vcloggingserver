@@ -3,6 +3,7 @@
 #include "Log2ConsoleUdpClient.h"
 #include <memory>
 #include <mutex>
+#include <unordered_map>
 
 class Logger {
 public:
@@ -47,6 +48,33 @@ public:
     // Set XML format preference
     void SetXmlFormat(bool useXml);
 
+    // Token-based logging to reduce repetition - only logs when message changes
+    void LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& message);
+    void LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& message,
+                             const char* file, const char* function, int line);
+
+    // Token-based printf-style log methods
+    template<typename T>
+    void LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T value);
+    
+    template<typename T>
+    void LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T value,
+                             const char* file, const char* function, int line);
+
+    template<typename T1, typename T2>
+    void LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2);
+    
+    template<typename T1, typename T2>
+    void LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
+                             const char* file, const char* function, int line);
+
+    template<typename T1, typename T2, typename T3>
+    void LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3);
+    
+    template<typename T1, typename T2, typename T3>
+    void LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
+                             const char* file, const char* function, int line);
+
 private:
     Logger() = default;
     ~Logger() = default;
@@ -83,6 +111,9 @@ private:
     std::unique_ptr<Log2ConsoleUdpClient> m_client;
     mutable std::mutex m_mutex;
     bool m_initialized = false;
+    
+    // Token-based logging storage
+    std::unordered_map<std::string, std::size_t> m_tokenHashes;
 };
 
 // Convenience macros for logging with automatic file/function/line info
@@ -104,24 +135,6 @@ private:
 #define LTC_FATAL(category, message) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, message, __FILE__, __FUNCTION__, __LINE__)
 
-// Simple macros without file/function/line info
-#define LTCS_TRACE(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, message)
-
-#define LTCS_DEBUG(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, message)
-
-#define LTCS_INFO(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, message)
-
-#define LTCS_WARN(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, message)
-
-#define LTCS_ERROR(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, message)
-
-#define LTCS_FATAL(category, message) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, message)
 
 // Printf-style macros with automatic file/function/line info
 #define LTC_TRACE_F1(category, format, value) \
@@ -142,24 +155,6 @@ private:
 #define LTC_FATAL_F1(category, format, value) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
-// Simple printf-style macros without file/function/line info
-#define LTCS_TRACE_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value)
-
-#define LTCS_DEBUG_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value)
-
-#define LTCS_INFO_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value)
-
-#define LTCS_WARN_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value)
-
-#define LTCS_ERROR_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value)
-
-#define LTCS_FATAL_F1(category, format, value) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value)
 
 // Printf-style macros with two parameters (with file/function/line info)
 #define LTC_TRACE_F2(category, format, value1, value2) \
@@ -180,24 +175,6 @@ private:
 #define LTC_FATAL_F2(category, format, value1, value2) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value1, value2, __FILE__, __FUNCTION__, __LINE__)
 
-// Simple printf-style macros with two parameters (without source location)
-#define LTCS_TRACE_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value1, value2)
-
-#define LTCS_DEBUG_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value1, value2)
-
-#define LTCS_INFO_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value1, value2)
-
-#define LTCS_WARN_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value1, value2)
-
-#define LTCS_ERROR_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value1, value2)
-
-#define LTCS_FATAL_F2(category, format, value1, value2) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value1, value2)
 
 // Printf-style macros with three parameters (with file/function/line info)
 #define LTC_TRACE_F3(category, format, value1, value2, value3) \
@@ -218,24 +195,6 @@ private:
 #define LTC_FATAL_F3(category, format, value1, value2, value3) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_FATAL, category, format, value1, value2, value3, __FILE__, __FUNCTION__, __LINE__)
 
-// Simple printf-style macros with three parameters (without source location)
-#define LTCS_TRACE_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_TRACE, category, format, value1, value2, value3)
-
-#define LTCS_DEBUG_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_DEBUG, category, format, value1, value2, value3)
-
-#define LTCS_INFO_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_INFO, category, format, value1, value2, value3)
-
-#define LTCS_WARN_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_WARN, category, format, value1, value2, value3)
-
-#define LTCS_ERROR_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_ERROR, category, format, value1, value2, value3)
-
-#define LTCS_FATAL_F3(category, format, value1, value2, value3) \
-    Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value1, value2, value3)
 
 // Template implementations for fmt::format style logging
 #include <sstream>
@@ -243,6 +202,7 @@ private:
 #include <type_traits>
 #include <tuple>
 #include <utility>
+#include <functional>
 
 template<typename T>
 void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T value) {
@@ -427,4 +387,158 @@ template<typename T>
 void Logger::FormatPrecision(std::ostringstream& oss, T value, const std::string& specifier, std::false_type) {
     // Not a floating point type, just output as default
     oss << value;
+}
+
+// Token-based template implementations
+template<typename T>
+void Logger::LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T value) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message);
+}
+
+template<typename T>
+void Logger::LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T value,
+                                 const char* file, const char* function, int line) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message, file, function, line);
+}
+
+template<typename T1, typename T2>
+void Logger::LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value1, value2);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message);
+}
+
+template<typename T1, typename T2>
+void Logger::LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2,
+                                 const char* file, const char* function, int line) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value1, value2);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message, file, function, line);
+}
+
+template<typename T1, typename T2, typename T3>
+void Logger::LogToken(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value1, value2, value3);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message);
+}
+
+template<typename T1, typename T2, typename T3>
+void Logger::LogTokenWithLocation(const std::string& tokenId, LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3,
+                                 const char* file, const char* function, int line) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (!m_initialized || !m_client) {
+        return;
+    }
+
+    std::string message = FormatMessage(format, value1, value2, value3);
+    
+    // Calculate hash of the formatted message
+    std::size_t messageHash = std::hash<std::string>{}(message);
+    
+    // Check if we've seen this message for this token before
+    auto it = m_tokenHashes.find(tokenId);
+    if (it != m_tokenHashes.end() && it->second == messageHash) {
+        // Same message, don't log
+        return;
+    }
+    
+    // New or different message, update hash and log
+    m_tokenHashes[tokenId] = messageHash;
+    m_client->Log(level, category, message, file, function, line);
 }
