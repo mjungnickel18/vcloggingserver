@@ -57,6 +57,29 @@ private:
     Logger(Logger&&) = delete;
     Logger& operator=(Logger&&) = delete;
 
+    // Helper functions for fmt::format style formatting
+    template<typename T>
+    static std::string FormatValue(T value, const std::string& specifier);
+    
+    template<typename... Args>
+    static std::string FormatMessage(const std::string& format, Args... args);
+    
+    template<typename Tuple>
+    static std::string GetFormattedValueByIndex(const Tuple& tuple, int index, const std::string& specifier);
+    
+    template<typename Tuple, std::size_t... Is>
+    static std::string GetFormattedValueByIndexImpl(const Tuple& tuple, int index, const std::string& specifier, std::index_sequence<Is...>);
+    
+    // C++14 compatibility helpers
+    template<typename T>
+    static void FormatHex(std::ostringstream& oss, T value, bool uppercase, bool prefix, std::true_type);
+    template<typename T>
+    static void FormatHex(std::ostringstream& oss, T value, bool uppercase, bool prefix, std::false_type);
+    template<typename T>
+    static void FormatPrecision(std::ostringstream& oss, T value, const std::string& specifier, std::true_type);
+    template<typename T>
+    static void FormatPrecision(std::ostringstream& oss, T value, const std::string& specifier, std::false_type);
+
     std::unique_ptr<Log2ConsoleUdpClient> m_client;
     mutable std::mutex m_mutex;
     bool m_initialized = false;
@@ -214,9 +237,12 @@ private:
 #define LTCS_FATAL_F3(category, format, value1, value2, value3) \
     Logger::GetInstance().Log(LogLevel::L_FATAL, category, format, value1, value2, value3)
 
-// Template implementations for printf-style logging
+// Template implementations for fmt::format style logging
 #include <sstream>
 #include <iomanip>
+#include <type_traits>
+#include <tuple>
+#include <utility>
 
 template<typename T>
 void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T value) {
@@ -226,22 +252,7 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
         return;
     }
 
-    // Simple string replacement - find %d, %s, %f, etc. and replace with value
-    std::string message = format;
-    std::ostringstream oss;
-    oss << value;
-    std::string valueStr = oss.str();
-    
-    // Find the first format specifier and replace it
-    size_t pos = message.find('%');
-    if (pos != std::string::npos && pos + 1 < message.length()) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            message.replace(pos, 2, valueStr);
-        }
-    }
-
+    std::string message = FormatMessage(format, value);
     m_client->Log(level, category, message);
 }
 
@@ -254,26 +265,11 @@ void Logger::LogWithLocation(LogLevel level, const std::string& category, const 
         return;
     }
 
-    // Simple string replacement - find %d, %s, %f, etc. and replace with value
-    std::string message = format;
-    std::ostringstream oss;
-    oss << value;
-    std::string valueStr = oss.str();
-    
-    // Find the first format specifier and replace it
-    size_t pos = message.find('%');
-    if (pos != std::string::npos && pos + 1 < message.length()) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            message.replace(pos, 2, valueStr);
-        }
-    }
-
+    std::string message = FormatMessage(format, value);
     m_client->Log(level, category, message, file, function, line);
 }
 
-// Template implementations for printf-style logging with two parameters
+// Template implementations for fmt::format style logging with two parameters
 template<typename T1, typename T2>
 void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2) {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -282,31 +278,7 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
         return;
     }
 
-    // Convert values to strings
-    std::ostringstream oss1, oss2;
-    oss1 << value1;
-    oss2 << value2;
-    std::string valueStr1 = oss1.str();
-    std::string valueStr2 = oss2.str();
-    
-    // Replace format specifiers in order
-    std::string message = format;
-    size_t pos = 0;
-    int replacements = 0;
-    
-    while ((pos = message.find('%', pos)) != std::string::npos && pos + 1 < message.length() && replacements < 2) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            std::string replacement = (replacements == 0) ? valueStr1 : valueStr2;
-            message.replace(pos, 2, replacement);
-            pos += replacement.length();
-            replacements++;
-        } else {
-            pos++;
-        }
-    }
-
+    std::string message = FormatMessage(format, value1, value2);
     m_client->Log(level, category, message);
 }
 
@@ -319,35 +291,11 @@ void Logger::LogWithLocation(LogLevel level, const std::string& category, const 
         return;
     }
 
-    // Convert values to strings
-    std::ostringstream oss1, oss2;
-    oss1 << value1;
-    oss2 << value2;
-    std::string valueStr1 = oss1.str();
-    std::string valueStr2 = oss2.str();
-    
-    // Replace format specifiers in order
-    std::string message = format;
-    size_t pos = 0;
-    int replacements = 0;
-    
-    while ((pos = message.find('%', pos)) != std::string::npos && pos + 1 < message.length() && replacements < 2) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            std::string replacement = (replacements == 0) ? valueStr1 : valueStr2;
-            message.replace(pos, 2, replacement);
-            pos += replacement.length();
-            replacements++;
-        } else {
-            pos++;
-        }
-    }
-
+    std::string message = FormatMessage(format, value1, value2);
     m_client->Log(level, category, message, file, function, line);
 }
 
-// Template implementations for printf-style logging with three parameters
+// Template implementations for fmt::format style logging with three parameters
 template<typename T1, typename T2, typename T3>
 void Logger::Log(LogLevel level, const std::string& category, const std::string& format, T1 value1, T2 value2, T3 value3) {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -356,34 +304,7 @@ void Logger::Log(LogLevel level, const std::string& category, const std::string&
         return;
     }
 
-    // Convert values to strings
-    std::ostringstream oss1, oss2, oss3;
-    oss1 << value1;
-    oss2 << value2;
-    oss3 << value3;
-    std::string valueStr1 = oss1.str();
-    std::string valueStr2 = oss2.str();
-    std::string valueStr3 = oss3.str();
-    
-    // Replace format specifiers in order
-    std::string message = format;
-    size_t pos = 0;
-    int replacements = 0;
-    
-    while ((pos = message.find('%', pos)) != std::string::npos && pos + 1 < message.length() && replacements < 3) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            std::string replacement = (replacements == 0) ? valueStr1 : 
-                                    (replacements == 1) ? valueStr2 : valueStr3;
-            message.replace(pos, 2, replacement);
-            pos += replacement.length();
-            replacements++;
-        } else {
-            pos++;
-        }
-    }
-
+    std::string message = FormatMessage(format, value1, value2, value3);
     m_client->Log(level, category, message);
 }
 
@@ -396,33 +317,114 @@ void Logger::LogWithLocation(LogLevel level, const std::string& category, const 
         return;
     }
 
-    // Convert values to strings
-    std::ostringstream oss1, oss2, oss3;
-    oss1 << value1;
-    oss2 << value2;
-    oss3 << value3;
-    std::string valueStr1 = oss1.str();
-    std::string valueStr2 = oss2.str();
-    std::string valueStr3 = oss3.str();
+    std::string message = FormatMessage(format, value1, value2, value3);
+    m_client->Log(level, category, message, file, function, line);
+}
+
+// FormatValue helper function implementation
+template<typename T>
+std::string Logger::FormatValue(T value, const std::string& specifier) {
+    std::ostringstream oss;
     
-    // Replace format specifiers in order
+    if (specifier.empty()) {
+        // Default formatting: {}
+        oss << value;
+    } else if (specifier == "x") {
+        // Hexadecimal lowercase: {x}
+        FormatHex(oss, value, false, false, std::is_integral<T>());
+    } else if (specifier == "X") {
+        // Hexadecimal uppercase: {X}
+        FormatHex(oss, value, true, false, std::is_integral<T>());
+    } else if (specifier.substr(0, 2) == "#x") {
+        // Hexadecimal with prefix: {#x}
+        FormatHex(oss, value, false, true, std::is_integral<T>());
+    } else if (specifier.substr(0, 2) == "#X") {
+        // Hexadecimal with prefix uppercase: {#X}
+        FormatHex(oss, value, true, true, std::is_integral<T>());
+    } else if (specifier[0] == ':' && specifier[1] == '.') {
+        // Precision formatting: {:.4}
+        FormatPrecision(oss, value, specifier, std::is_floating_point<T>());
+    } else {
+        // Unknown specifier, use default
+        oss << value;
+    }
+    
+    return oss.str();
+}
+
+// FormatMessage unified helper function implementation
+template<typename... Args>
+std::string Logger::FormatMessage(const std::string& format, Args... args) {
     std::string message = format;
     size_t pos = 0;
     int replacements = 0;
     
-    while ((pos = message.find('%', pos)) != std::string::npos && pos + 1 < message.length() && replacements < 3) {
-        char specifier = message[pos + 1];
-        if (specifier == 'd' || specifier == 'i' || specifier == 'f' || specifier == 'g' || 
-            specifier == 's' || specifier == 'c' || specifier == 'x' || specifier == 'X') {
-            std::string replacement = (replacements == 0) ? valueStr1 : 
-                                    (replacements == 1) ? valueStr2 : valueStr3;
-            message.replace(pos, 2, replacement);
-            pos += replacement.length();
+    // Pack arguments into a tuple for indexed access
+    auto argTuple = std::make_tuple(args...);
+    constexpr size_t argCount = sizeof...(args);
+    
+    while ((pos = message.find('{', pos)) != std::string::npos && replacements < argCount) {
+        size_t endPos = message.find('}', pos);
+        if (endPos != std::string::npos) {
+            std::string specifier = message.substr(pos + 1, endPos - pos - 1);
+            std::string valueStr = GetFormattedValueByIndex(argTuple, replacements, specifier);
+            message.replace(pos, endPos - pos + 1, valueStr);
+            pos += valueStr.length();
             replacements++;
         } else {
             pos++;
         }
     }
+    
+    return message;
+}
 
-    m_client->Log(level, category, message, file, function, line);
+// Helper to get formatted value by index from tuple
+template<typename Tuple>
+std::string Logger::GetFormattedValueByIndex(const Tuple& tuple, int index, const std::string& specifier) {
+    return GetFormattedValueByIndexImpl(tuple, index, specifier, std::make_index_sequence<std::tuple_size<Tuple>::value>{});
+}
+
+// Implementation detail for tuple index access  
+template<typename Tuple, std::size_t... Is>
+std::string Logger::GetFormattedValueByIndexImpl(const Tuple& tuple, int index, const std::string& specifier, std::index_sequence<Is...>) {
+    std::string result;
+    auto dummy = {(index == Is ? (result = FormatValue(std::get<Is>(tuple), specifier), 0) : 0)...};
+    (void)dummy; // Suppress unused variable warning
+    return result;
+}
+
+// C++14 compatibility helper implementations
+template<typename T>
+void Logger::FormatHex(std::ostringstream& oss, T value, bool uppercase, bool prefix, std::true_type) {
+    if (prefix) {
+        oss << (uppercase ? "0X" : "0x");
+    }
+    if (uppercase) {
+        oss << std::hex << std::uppercase << value;
+    } else {
+        oss << std::hex << value;
+    }
+}
+
+template<typename T>
+void Logger::FormatHex(std::ostringstream& oss, T value, bool uppercase, bool prefix, std::false_type) {
+    // Not an integral type, just output as default
+    oss << value;
+}
+
+template<typename T>
+void Logger::FormatPrecision(std::ostringstream& oss, T value, const std::string& specifier, std::true_type) {
+    try {
+        int precision = std::stoi(specifier.substr(2));
+        oss << std::fixed << std::setprecision(precision) << value;
+    } catch (...) {
+        oss << value;
+    }
+}
+
+template<typename T>
+void Logger::FormatPrecision(std::ostringstream& oss, T value, const std::string& specifier, std::false_type) {
+    // Not a floating point type, just output as default
+    oss << value;
 }
