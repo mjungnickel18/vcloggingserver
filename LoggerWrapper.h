@@ -24,6 +24,7 @@
 
 // Printf-style macros (with file/function/line info) - do nothing
 #define LTC_TRACE_F1(category, format, value) do { } while(0)
+#define LTC_TRACE_F1_POS(category, format, value, file, function, line) do { } while(0)
 #define LTC_DEBUG_F1(category, format, value) do { } while(0)
 #define LTC_INFO_F1(category, format, value) do { } while(0)
 #define LTC_WARN_F1(category, format, value) do { } while(0)

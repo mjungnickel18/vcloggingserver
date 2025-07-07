@@ -140,6 +140,10 @@ private:
 #define LTC_TRACE_F1(category, format, value) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
+// Printf-style macro with manual file/function/line info
+#define LTC_TRACE_F1_POS(category, format, value, file, function, line) \
+    Logger::GetInstance().LogWithLocation(LogLevel::L_TRACE, category, format, value, file, function, line)
+
 #define LTC_DEBUG_F1(category, format, value) \
     Logger::GetInstance().LogWithLocation(LogLevel::L_DEBUG, category, format, value, __FILE__, __FUNCTION__, __LINE__)
 
