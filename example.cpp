@@ -54,13 +54,13 @@ void RunSingletonLogger() {
     
     std::cout << "Singleton logger initialized! Sending test logs..." << std::endl;
     
-    // Test simple logging macros (without file/function/line info)
-    LTCS_INFO("SingletonApp", "Singleton logger application started");
-    LTCS_DEBUG("Database", "Connecting to database...");
-    LTCS_WARN("Network", "High latency detected: 250ms");
-    LTCS_ERROR("FileSystem", "Configuration file not found");
-    LTCS_FATAL("Security", "Authentication failed");
-    LTCS_TRACE("Performance", "Method execution time: 42ms");
+    // Test basic logging through direct Logger calls
+    Logger::GetInstance().Log(LogLevel::L_INFO, "SingletonApp", "Singleton logger application started");
+    Logger::GetInstance().Log(LogLevel::L_DEBUG, "Database", "Connecting to database...");
+    Logger::GetInstance().Log(LogLevel::L_WARN, "Network", "High latency detected: 250ms");
+    Logger::GetInstance().Log(LogLevel::L_ERROR, "FileSystem", "Configuration file not found");
+    Logger::GetInstance().Log(LogLevel::L_FATAL, "Security", "Authentication failed");
+    Logger::GetInstance().Log(LogLevel::L_TRACE, "Performance", "Method execution time: 42ms");
     
     std::cout << "Testing enhanced logging with file/function/line info..." << std::endl;
     

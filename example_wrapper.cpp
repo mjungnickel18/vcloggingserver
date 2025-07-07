@@ -33,9 +33,9 @@ void TestLogging() {
     LTC_ERROR("FileSystem", "File not found");
     LTC_FATAL("Security", "Authentication failed");
     
-    // Simple logging calls
-    LTCS_INFO("TestApp", "Simple log message");
-    LTCS_WARN("TestApp", "Simple warning message");
+    // Additional logging examples
+    LTC_INFO("TestApp", "Additional log message");
+    LTC_WARN("TestApp", "Warning message example");
     
     // Direct Logger usage (commented out - use wrapper macros instead)
     // Logger::GetInstance().Log(LogLevel::L_INFO, "DirectCall", "Direct logger call");
